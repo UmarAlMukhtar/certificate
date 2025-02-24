@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Verification</title>
+    <script>
+        async function verifyCertificate() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const certID = urlParams.get('id');
+
+            if (!certID) {
+                document.getElementById("result").innerText = "Invalid Certificate ID";
+                return;
+            }
+
+            // Fetch certificate details from Google Sheets (via Apps Script)
+            const response = await fetch(`https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?id=${certID}`);
+            const data = await response.json();
+
+            if (data.name) {
+                document.getElementById("result").innerHTML = `
+                    <h3>Certificate Verified</h3>
+                    <p><strong>Name:</strong> ${data.name}</p>
+                    <p><strong>Type:</strong> ${data.type}</p>
+                    <p><strong>Issued on:</strong> ${data.issueDate}</p>
+                `;
+            } else {
+                document.getElementById("result").innerText = "Certificate Not Found";
+            }
+        }
+
+        window.onload = verifyCertificate;
+    </script>
+</head>
+<body>
+    <h2>Certificate Verification</h2>
+    <div id="result">Verifying...</div>
+</body>
+</html>
