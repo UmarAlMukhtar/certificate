@@ -17,6 +17,7 @@
             border-radius: 8px;
             background-color: #f4f4f4;
             display: inline-block;
+            font-size: 18px;
         }
         input {
             padding: 10px;
@@ -32,6 +33,10 @@
             width: 300px;
             margin: 20px auto;
         }
+        .loading {
+            font-size: 16px;
+            color: blue;
+        }
     </style>
 </head>
 <body>
@@ -45,7 +50,7 @@
     <h3>Or Scan QR Code</h3>
     <div id="qr-reader"></div>
 
-    <div id="result">Verifying...</div>
+    <div id="result">Enter Certificate ID or Scan QR to verify</div>
 
     <script>
         const apiUrl = "https://script.google.com/macros/s/AKfycbw7IimiKOaR-GBOA2Zo-aj4f9XPlnFcN8MAnjSLP1TEESOX7EEWoPLLBwh_gFoJddGg/exec";
@@ -55,6 +60,9 @@
                 document.getElementById("result").innerText = "Invalid Certificate ID";
                 return;
             }
+
+            // Show loading message
+            document.getElementById("result").innerHTML = "<span class='loading'>🔄 Verifying...</span>";
 
             try {
                 const response = await fetch(`${apiUrl}?id=${certID}`);
@@ -114,7 +122,6 @@
             if (certID) {
                 verifyCertificate(certID);
             } else {
-                document.getElementById("result").innerText = "Enter Certificate ID or Scan QR to verify";
                 startQRScanner();
             }
         };
