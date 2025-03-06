@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IEDC Certificate Verification</title>
-    <script src="https://unpkg.com/html5-qrcode" defer></script> <!-- ✅ Ensure QR Code Library Loads -->
+    <script src="https://unpkg.com/html5-qrcode"></script> <!-- ✅ Ensure QR Code Library Loads -->
     <style>
         /* General Styles */
         body {
@@ -30,15 +30,8 @@
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .header img {
-            width: 50px;
-            vertical-align: middle;
-        }
-
         .header h1 {
-            display: inline;
             font-size: 22px;
-            margin-left: 10px;
         }
 
         /* Main Container */
@@ -92,6 +85,7 @@
             background-color: #003366;
         }
 
+        /* QR Scanner */
         #qr-reader {
             width: 300px;
             margin: 20px auto;
@@ -235,10 +229,24 @@
                 { facingMode: "environment" },
                 { fps: 10, qrbox: { width: 250, height: 250 } },
                 qrCodeMessage => {
-                    window.location.href = `?id=${encodeURIComponent(qrCodeMessage.trim())}`;
+                    let scannedURL = new URL(qrCodeMessage, window.location.origin);
+                    let extractedID = scannedURL.searchParams.get("id") || qrCodeMessage.trim();
+                    window.location.href = `?id=${encodeURIComponent(extractedID)}`;
+                },
+                errorMessage => {
+                    console.warn(errorMessage);
                 }
             ).catch(err => console.error("Error starting QR scanner:", err));
         }
+
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const certID = urlParams.get("id");
+
+            if (certID) {
+                verifyCertificate(certID);
+            }
+        };
     </script>
 
 </body>
