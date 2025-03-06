@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IEDC Certificate Verification</title>
+    <title>Certificate Verification</title>
     <script src="https://unpkg.com/html5-qrcode"></script> <!-- ✅ Ensure QR Code Library Loads -->
     <style>
         /* General Styles */
@@ -166,7 +166,7 @@
                 return;
             }
 
-            certID = decodeURIComponent(certID.trim());
+            certID = decodeURIComponent(certID.trim()); // ✅ Fix: Remove spaces & encode URL
 
             // Show loading message
             document.getElementById("result").innerHTML = "<span class='loading'>🔄 Verifying...</span>";
@@ -181,6 +181,7 @@
                         <p><strong>Name:</strong> ${data.name}</p>
                         <p><strong>Class:</strong> ${data.class}</p>
                         <p><strong>Event:</strong> ${data.event}</p>
+                        <p><strong>Certificate Type:</strong> ${data.certType}</p>
                         <p><strong>Issued on:</strong> ${data.issueDate}</p>
                     `;
                 } else {
