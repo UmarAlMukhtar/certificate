@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificate Verification</title>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" defer></script> <!-- ✅ Ensure QR Code Library Loads -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,17 +21,23 @@
         }
         input {
             padding: 10px;
-            width: 300px;
+            width: 90%;
+            max-width: 300px;
             font-size: 16px;
         }
         button {
             padding: 10px;
             font-size: 16px;
             cursor: pointer;
+            margin: 10px;
+            display: block; /* ✅ Ensures button is always visible */
+            width: 90%;
+            max-width: 300px;
         }
         #qr-reader {
             width: 300px;
             margin: 20px auto;
+            display: none; /* ✅ Scanner is hidden initially */
         }
         .loading {
             font-size: 16px;
@@ -46,20 +52,27 @@
     <input type="text" id="certID" placeholder="Enter Certificate ID">
     <button onclick="searchCertificate()">Verify</button>
 
-    <!-- QR Code Scanner -->
-    <h3>Or Scan QR Code</h3>
+    <!-- QR Code Scanner Button -->
+    <h3>Or</h3>
+    <button id="scanBtn" onclick="toggleQRScanner()">Scan QR Code</button>
+    
+    <!-- QR Scanner Container -->
     <div id="qr-reader"></div>
 
     <div id="result">Enter Certificate ID or Scan QR to verify</div>
 
     <script>
-        const apiUrl = "https://script.google.com/macros/s/AKfycbw7IimiKOaR-GBOA2Zo-aj4f9XPlnFcN8MAnjSLP1TEESOX7EEWoPLLBwh_gFoJddGg/exec";
+        const apiUrl = "https://script.google.com/macros/s/AKfycbxH7PolqjUVWBi1uYzzbeicUgynLESM_R5htSyYlQWIbdqHM7Z88LLOCumM-4nUVCyU/exec";
+        let qrScannerActive = false;
+        let html5QrCode = null;
 
         async function verifyCertificate(certID) {
             if (!certID) {
                 document.getElementById("result").innerText = "Invalid Certificate ID";
                 return;
             }
+
+            certID = decodeURIComponent(certID.trim()); // ✅ Fix: Remove spaces & encode URL
 
             // Show loading message
             document.getElementById("result").innerHTML = "<span class='loading'>🔄 Verifying...</span>";
@@ -72,7 +85,8 @@
                     document.getElementById("result").innerHTML = `
                         <h3>✅ Certificate Verified</h3>
                         <p><strong>Name:</strong> ${data.name}</p>
-                        <p><strong>Type:</strong> ${data.type}</p>
+                        <p><strong>Class:</strong> ${data.class}</p>
+                        <p><strong>Event:</strong> ${data.event}</p>
                         <p><strong>Issued on:</strong> ${data.issueDate}</p>
                     `;
                 } else {
@@ -95,8 +109,32 @@
             verifyCertificate(certID);
         }
 
+        function toggleQRScanner() {
+            const qrReader = document.getElementById("qr-reader");
+
+            if (qrScannerActive) {
+                // ✅ Stop and hide QR scanner
+                html5QrCode.stop().then(() => {
+                    qrReader.innerHTML = "";
+                    qrReader.style.display = "none";
+                    qrScannerActive = false;
+                    document.getElementById("scanBtn").innerText = "Scan QR Code"; // ✅ Reset button text
+                    console.log("QR Scanner Stopped");
+                }).catch(err => {
+                    console.error("Error stopping QR scanner:", err);
+                });
+            } else {
+                // ✅ Start and show QR scanner
+                qrReader.style.display = "block";
+                startQRScanner();
+                qrScannerActive = true;
+                document.getElementById("scanBtn").innerText = "Stop QR Scanner"; // ✅ Change button text
+            }
+        }
+
         function startQRScanner() {
-            const html5QrCode = new Html5Qrcode("qr-reader");
+            const qrReader = document.getElementById("qr-reader");
+            html5QrCode = new Html5Qrcode("qr-reader");
 
             html5QrCode.start(
                 { facingMode: "environment" }, 
@@ -105,7 +143,11 @@
                     qrbox: { width: 250, height: 250 }
                 },
                 qrCodeMessage => {
-                    window.location.href = `?id=${encodeURIComponent(qrCodeMessage)}`;
+                    // ✅ Fix: Trim and encode scanned certificate ID
+                    const cleanedCertID = encodeURIComponent(qrCodeMessage.trim());
+
+                    console.log("Scanned QR Code:", cleanedCertID);
+                    window.location.href = `?id=${cleanedCertID}`;
                 },
                 errorMessage => {
                     console.warn(errorMessage);
@@ -121,9 +163,16 @@
 
             if (certID) {
                 verifyCertificate(certID);
-            } else {
-                startQRScanner();
             }
+
+            // ✅ Ensure QR scanner button is always visible on mobile
+            setTimeout(() => {
+                if (typeof Html5Qrcode !== "undefined") {
+                    document.getElementById("scanBtn").style.display = "block";
+                } else {
+                    console.warn("QR Code library not loaded, scanner may not work.");
+                }
+            }, 1000);
         };
     </script>
 </body>
