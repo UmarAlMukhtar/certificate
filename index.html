@@ -3,60 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificate Verification</title>
+    <title>IEDC Certificate Verification</title>
     <script src="https://unpkg.com/html5-qrcode" defer></script> <!-- ✅ Ensure QR Code Library Loads -->
     <style>
+        /* General Styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             text-align: center;
-            margin: 50px;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
         }
-        .container {
+
+        /* Header Styling */
+        .header {
+            background-color: #001f3f;
+            color: white;
+            padding: 15px;
             width: 100%;
-            max-width: 500px;
+            text-align: center;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
+
+        .header img {
+            width: 50px;
+            vertical-align: middle;
+        }
+
+        .header h1 {
+            display: inline;
+            font-size: 22px;
+            margin-left: 10px;
+        }
+
+        /* Main Container */
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            margin-top: 20px;
+            position: relative;
+        }
+
         .input-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 15px;
         }
+
         input {
-            padding: 10px;
+            padding: 12px;
             width: 90%;
             max-width: 350px;
             font-size: 16px;
+            border: 2px solid #001f3f;
+            border-radius: 6px;
+            outline: none;
         }
+
         button {
-            padding: 10px;
+            padding: 12px;
             font-size: 16px;
             cursor: pointer;
-            margin: 10px;
+            margin: 10px auto;
             width: 90%;
             max-width: 350px;
+            display: block;
+            background-color: #001f3f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: 0.3s;
         }
+
+        button:hover {
+            background-color: #003366;
+        }
+
         #qr-reader {
             width: 300px;
             margin: 20px auto;
             display: none; /* ✅ Scanner is hidden initially */
         }
+
+        /* ✅ Fix: Keep result inside container */
         #result {
             margin-top: 20px;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             background-color: #f4f4f4;
-            display: inline-block;
-            font-size: 18px;
+            display: block;
+            font-size: 16px;
             width: 100%;
-            max-width: 500px;
+            max-width: 100%;
             word-wrap: break-word;
+            overflow-wrap: break-word;
+            text-align: left;
+            box-sizing: border-box;
         }
+
         .loading {
             font-size: 16px;
             color: blue;
@@ -78,8 +135,14 @@
     </style>
 </head>
 <body>
+
+    <!-- IEDC Branding Header -->
+    <div class="header">
+        <h1>Certificate Verification</h1>
+    </div>
+
     <div class="container">
-        <h2>Certificate Verification</h2>
+        <h2>Verify Your Certificate</h2>
 
         <!-- Manual ID Entry -->
         <div class="input-container">
@@ -94,6 +157,7 @@
         <!-- QR Scanner Container -->
         <div id="qr-reader"></div>
 
+        <!-- ✅ Fixed Result Box - Stays inside the container -->
         <div id="result">Enter Certificate ID or Scan QR to verify</div>
     </div>
 
@@ -149,22 +213,17 @@
             const qrReader = document.getElementById("qr-reader");
 
             if (qrScannerActive) {
-                // ✅ Stop and hide QR scanner
                 html5QrCode.stop().then(() => {
                     qrReader.innerHTML = "";
                     qrReader.style.display = "none";
                     qrScannerActive = false;
-                    document.getElementById("scanBtn").innerText = "Scan QR Code"; // ✅ Reset button text
-                    console.log("QR Scanner Stopped");
-                }).catch(err => {
-                    console.error("Error stopping QR scanner:", err);
-                });
+                    document.getElementById("scanBtn").innerText = "Scan QR Code";
+                }).catch(err => console.error("Error stopping QR scanner:", err));
             } else {
-                // ✅ Start and show QR scanner
                 qrReader.style.display = "block";
                 startQRScanner();
                 qrScannerActive = true;
-                document.getElementById("scanBtn").innerText = "Stop QR Scanner"; // ✅ Change button text
+                document.getElementById("scanBtn").innerText = "Stop QR Scanner";
             }
         }
 
@@ -173,43 +232,14 @@
             html5QrCode = new Html5Qrcode("qr-reader");
 
             html5QrCode.start(
-                { facingMode: "environment" }, 
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 }
-                },
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
                 qrCodeMessage => {
-                    // ✅ Fix: Trim and encode scanned certificate ID
-                    const cleanedCertID = encodeURIComponent(qrCodeMessage.trim());
-
-                    console.log("Scanned QR Code:", cleanedCertID);
-                    window.location.href = `?id=${cleanedCertID}`;
-                },
-                errorMessage => {
-                    console.warn(errorMessage);
+                    window.location.href = `?id=${encodeURIComponent(qrCodeMessage.trim())}`;
                 }
-            ).catch(err => {
-                console.error("Error starting QR scanner:", err);
-            });
+            ).catch(err => console.error("Error starting QR scanner:", err));
         }
-
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const certID = urlParams.get('id');
-
-            if (certID) {
-                verifyCertificate(certID);
-            }
-
-            // ✅ Ensure QR scanner button is always visible on mobile
-            setTimeout(() => {
-                if (typeof Html5Qrcode !== "undefined") {
-                    document.getElementById("scanBtn").style.display = "block";
-                } else {
-                    console.warn("QR Code library not loaded, scanner may not work.");
-                }
-            }, 1000);
-        };
     </script>
+
 </body>
 </html>
