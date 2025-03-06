@@ -143,11 +143,19 @@
                     qrbox: { width: 250, height: 250 }
                 },
                 qrCodeMessage => {
-                    // ✅ Fix: Trim and encode scanned certificate ID
-                    const cleanedCertID = encodeURIComponent(qrCodeMessage.trim());
+                    console.log("Scanned QR Code:", qrCodeMessage);
 
-                    console.log("Scanned QR Code:", cleanedCertID);
-                    window.location.href = `?id=${cleanedCertID}`;
+                    // ✅ Extract only the certificate ID if full URL is scanned
+                    let certID;
+                    const urlParams = new URL(qrCodeMessage).searchParams;
+                    if (urlParams.has('id')) {
+                        certID = urlParams.get('id'); // Extract correct certificate ID
+                    } else {
+                        certID = qrCodeMessage.trim(); // Assume it's just the ID
+                    }
+
+                    console.log("Extracted Certificate ID:", certID);
+                    window.location.href = `?id=${encodeURIComponent(certID)}`;
                 },
                 errorMessage => {
                     console.warn(errorMessage);
@@ -156,6 +164,7 @@
                 console.error("Error starting QR scanner:", err);
             });
         }
+
 
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
