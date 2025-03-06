@@ -166,7 +166,7 @@
                 return;
             }
 
-            certID = decodeURIComponent(certID.trim()); // ✅ Fix: Remove spaces & encode URL
+            certID = decodeURIComponent(certID.trim());
 
             // Show loading message
             document.getElementById("result").innerHTML = "<span class='loading'>🔄 Verifying...</span>";
@@ -203,45 +203,16 @@
             verifyCertificate(certID);
         }
 
-        function toggleQRScanner() {
-            const qrReader = document.getElementById("qr-reader");
-
-            if (qrScannerActive) {
-                html5QrCode.stop().then(() => {
-                    qrReader.innerHTML = "";
-                    qrReader.style.display = "none";
-                    qrScannerActive = false;
-                    document.getElementById("scanBtn").innerText = "Scan QR Code";
-                }).catch(err => console.error("Error stopping QR scanner:", err));
-            } else {
-                qrReader.style.display = "block";
-                startQRScanner();
-                qrScannerActive = true;
-                document.getElementById("scanBtn").innerText = "Stop QR Scanner";
-            }
-        }
-
-        function startQRScanner() {
-            const qrReader = document.getElementById("qr-reader");
-            html5QrCode = new Html5Qrcode("qr-reader");
-
-            html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                qrCodeMessage => {
-                    let scannedURL = new URL(qrCodeMessage, window.location.origin);
-                    let extractedID = scannedURL.searchParams.get("id") || qrCodeMessage.trim();
-                    window.location.href = `?id=${encodeURIComponent(extractedID)}`;
-                },
-                errorMessage => {
-                    console.warn(errorMessage);
-                }
-            ).catch(err => console.error("Error starting QR scanner:", err));
-        }
-
         window.onload = function () {
             const urlParams = new URLSearchParams(window.location.search);
-            const certID = urlParams.get("id");
+            let certID = urlParams.get("id");
+
+            if (!certID) {
+                const hashValue = window.location.hash.substring(1);
+                if (hashValue) {
+                    certID = decodeURIComponent(hashValue);
+                }
+            }
 
             if (certID) {
                 verifyCertificate(certID);
