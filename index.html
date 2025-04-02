@@ -1,225 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Certificate Verification</title>
-    <script src="https://unpkg.com/html5-qrcode"></script> <!-- ✅ Ensure QR Code Library Loads -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- ✅ Ensure QR Code Library Loads -->
     <style>
-        /* General Styles */
-        body {
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
+      /* General Styles */
+      body {
+        font-family: "Arial", sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
 
-        /* Header Styling */
-        .header {
-            background-color: #001f3f;
-            color: white;
-            padding: 15px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
+      /* Header Styling */
+      .header {
+        background-color: #001f3f;
+        color: white;
+        padding: 15px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      }
 
-        .header h1 {
-            font-size: 22px;
-        }
+      .header h1 {
+        font-size: 22px;
+      }
 
-        /* Main Container */
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-            margin-top: 20px;
-            position: relative;
-        }
+      /* Main Container */
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+        margin-top: 20px;
+        position: relative;
+      }
 
+      .input-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      input {
+        padding: 12px;
+        width: 90%;
+        max-width: 350px;
+        font-size: 16px;
+        border: 2px solid #001f3f;
+        border-radius: 6px;
+        outline: none;
+      }
+
+      button {
+        padding: 12px;
+        font-size: 16px;
+        cursor: pointer;
+        margin: 10px auto;
+        width: 90%;
+        max-width: 350px;
+        display: block;
+        background-color: #001f3f;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        background-color: #003366;
+      }
+
+      /* QR Scanner */
+      #qr-reader {
+        width: 300px;
+        margin: 20px auto;
+        display: none; /* ✅ Scanner is hidden initially */
+      }
+
+      /* ✅ Fix: Keep result inside container */
+      #result {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #f4f4f4;
+        display: block;
+        font-size: 16px;
+        width: 100%;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        text-align: left;
+        box-sizing: border-box;
+      }
+
+      .loading {
+        font-size: 16px;
+        color: blue;
+      }
+
+      /* Responsive Design */
+      @media (min-width: 768px) {
         .input-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
+          flex-direction: row;
+          justify-content: center;
         }
-
         input {
-            padding: 12px;
-            width: 90%;
-            max-width: 350px;
-            font-size: 16px;
-            border: 2px solid #001f3f;
-            border-radius: 6px;
-            outline: none;
+          width: 60%;
         }
-
         button {
-            padding: 12px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 10px auto;
-            width: 90%;
-            max-width: 350px;
-            display: block;
-            background-color: #001f3f;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            transition: 0.3s;
+          width: auto;
         }
-
-        button:hover {
-            background-color: #003366;
-        }
-
-        /* QR Scanner */
-        #qr-reader {
-            width: 300px;
-            margin: 20px auto;
-            display: none; /* ✅ Scanner is hidden initially */
-        }
-
-        /* ✅ Fix: Keep result inside container */
-        #result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            background-color: #f4f4f4;
-            display: block;
-            font-size: 16px;
-            width: 100%;
-            max-width: 100%;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            text-align: left;
-            box-sizing: border-box;
-        }
-
-        .loading {
-            font-size: 16px;
-            color: blue;
-        }
-
-        /* Responsive Design */
-        @media (min-width: 768px) {
-            .input-container {
-                flex-direction: row;
-                justify-content: center;
-            }
-            input {
-                width: 60%;
-            }
-            button {
-                width: auto;
-            }
-        }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <!-- IEDC Branding Header -->
     <div class="header">
-        <h1>Certificate Verification</h1>
+      <h1>Certificate Verification</h1>
     </div>
 
     <div class="container">
-        <h2>Verify Your Certificate</h2>
+      <h2>Verify Your Certificate</h2>
 
-        <!-- Manual ID Entry -->
-        <div class="input-container">
-            <input type="text" id="certID" placeholder="Enter Certificate ID">
-            <button onclick="searchCertificate()">Verify</button>
-        </div>
+      <!-- Manual ID Entry -->
+      <div class="input-container">
+        <input type="text" id="certID" placeholder="Enter Certificate ID" />
+        <button onclick="searchCertificate()">Verify</button>
+      </div>
 
-        <!-- QR Code Scanner Button -->
-        <h3>Or</h3>
-        <button id="scanBtn" onclick="toggleQRScanner()">Scan QR Code</button>
-        
-        <!-- QR Scanner Container -->
-        <div id="qr-reader"></div>
+      <!-- QR Code Scanner Button -->
+      <h3>Or</h3>
+      <button id="scanBtn" onclick="toggleQRScanner()">Scan QR Code</button>
 
-        <!-- ✅ Fixed Result Box - Stays inside the container -->
-        <div id="result">Enter Certificate ID or Scan QR to verify</div>
+      <!-- QR Scanner Container -->
+      <div id="qr-reader"></div>
+
+      <!-- ✅ Fixed Result Box - Stays inside the container -->
+      <div id="result">Enter Certificate ID or Scan QR to verify</div>
     </div>
 
     <script>
-        const apiUrl = "https://script.google.com/macros/s/AKfycbxH7PolqjUVWBi1uYzzbeicUgynLESM_R5htSyYlQWIbdqHM7Z88LLOCumM-4nUVCyU/exec";
+      let qrScannerActive = false;
+      let html5QrCode = null;
+
+      function toggleQRScanner() {
+        const qrReader = document.getElementById("qr-reader");
+
+        if (!qrScannerActive) {
+          html5QrCode = new Html5Qrcode("qr-reader");
+          html5QrCode
+            .start(
+              { facingMode: "environment" }, // Use the back camera
+              { fps: 10, qrbox: 250 },
+              (decodedText) => {
+                document.getElementById("certID").value = decodedText;
+                verifyCertificate(decodedText);
+                stopQRScanner();
+              },
+              (errorMessage) => {
+                console.warn("QR Scan Error:", errorMessage);
+              }
+            )
+            .catch((err) => console.error("QR Scanner Error:", err));
+
+          qrReader.style.display = "block";
+          document.getElementById("scanBtn").innerText = "Stop Scanning";
+          qrScannerActive = true;
+        } else {
+          stopQRScanner();
+        }
+      }
+
+      function stopQRScanner() {
+        if (html5QrCode) {
+          html5QrCode
+            .stop()
+            .then(() => {
+              document.getElementById("qr-reader").style.display = "none";
+              document.getElementById("scanBtn").innerText = "Scan QR Code";
+              qrScannerActive = false;
+            })
+            .catch((err) => console.error("QR Scanner Stop Error:", err));
+        }
+
+        const apiUrl =
+          "https://script.google.com/macros/s/AKfycbxH7PolqjUVWBi1uYzzbeicUgynLESM_R5htSyYlQWIbdqHM7Z88LLOCumM-4nUVCyU/exec";
         let qrScannerActive = false;
         let html5QrCode = null;
 
         async function verifyCertificate(certID) {
-            if (!certID) {
-                document.getElementById("result").innerText = "Invalid Certificate ID";
-                return;
+          if (!certID) {
+            document.getElementById("result").innerText =
+              "Invalid Certificate ID";
+            return;
+          }
+
+          certID = decodeURIComponent(certID.trim()); // ✅ Fix: Remove spaces & encode URL
+
+          // Show loading message
+          document.getElementById("result").innerHTML =
+            "<span class='loading'>🔄 Verifying...</span>";
+
+          try {
+            const response = await fetch(`${apiUrl}?id=${certID}`);
+            const data = await response.json();
+
+            if (data.name) {
+              document.getElementById("result").innerHTML = `
+                          <h3>✅ Certificate Verified</h3>
+                          <p><strong>Name:</strong> ${data.name}</p>
+                          <p><strong>Class:</strong> ${data.class}</p>
+                          <p><strong>Event:</strong> ${data.event}</p>
+                          <p><strong>Certificate Type:</strong> ${data.certType}</p>
+                          <p><strong>Issued on:</strong> ${data.issueDate}</p>
+                      `;
+            } else {
+              document.getElementById("result").innerHTML = `
+                          <h3>❌ Certificate Not Found</h3>
+                          <p>Please check the Certificate ID and try again.</p>
+                      `;
             }
-
-            certID = decodeURIComponent(certID.trim()); // ✅ Fix: Remove spaces & encode URL
-
-            // Show loading message
-            document.getElementById("result").innerHTML = "<span class='loading'>🔄 Verifying...</span>";
-
-            try {
-                const response = await fetch(`${apiUrl}?id=${certID}`);
-                const data = await response.json();
-
-                if (data.name) {
-                    document.getElementById("result").innerHTML = `
-                        <h3>✅ Certificate Verified</h3>
-                        <p><strong>Name:</strong> ${data.name}</p>
-                        <p><strong>Class:</strong> ${data.class}</p>
-                        <p><strong>Event:</strong> ${data.event}</p>
-                        <p><strong>Certificate Type:</strong> ${data.certType}</p>
-                        <p><strong>Issued on:</strong> ${data.issueDate}</p>
-                    `;
-                } else {
-                    document.getElementById("result").innerHTML = `
-                        <h3>❌ Certificate Not Found</h3>
-                        <p>Please check the Certificate ID and try again.</p>
-                    `;
-                }
-            } catch (error) {
-                console.error("Error fetching certificate data:", error);
-                document.getElementById("result").innerHTML = `
-                    <h3>⚠️ Error Fetching Data</h3>
-                    <p>Could not fetch certificate details. Please try again later.</p>
-                `;
-            }
+          } catch (error) {
+            console.error("Error fetching certificate data:", error);
+            document.getElementById("result").innerHTML = `
+                      <h3>⚠️ Error Fetching Data</h3>
+                      <p>Could not fetch certificate details. Please try again later.</p>
+                  `;
+          }
         }
 
         function searchCertificate() {
-            const certID = document.getElementById("certID").value.trim();
-            verifyCertificate(certID);
+          const certID = document.getElementById("certID").value.trim();
+          verifyCertificate(certID);
         }
 
         window.onload = function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            let certID = urlParams.get("id");
+          const urlParams = new URLSearchParams(window.location.search);
+          let certID = urlParams.get("id");
 
-            if (!certID) {
-                const hashValue = window.location.hash.substring(1);
-                if (hashValue) {
-                    certID = decodeURIComponent(hashValue);
-                }
+          if (!certID) {
+            const hashValue = window.location.hash.substring(1);
+            if (hashValue) {
+              certID = decodeURIComponent(hashValue);
             }
+          }
 
-            if (certID) {
-                verifyCertificate(certID);
-            }
+          if (certID) {
+            verifyCertificate(certID);
+          }
         };
+      }
     </script>
-
-</body>
+  </body>
 </html>
