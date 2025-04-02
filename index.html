@@ -78,24 +78,40 @@
 
       function toggleQRScanner() {
         const qrReader = document.getElementById("qr-reader");
+
         if (!qrScannerActive) {
           html5QrCode = new Html5Qrcode("qr-reader");
           html5QrCode
             .start(
-              { facingMode: "environment" },
+              { facingMode: "environment" }, // Use the back camera
               { fps: 10, qrbox: 250 },
               (decodedText) => {
-                document.getElementById("certID").value = decodedText;
-                verifyCertificate(decodedText);
+                let certID = extractCertificateID(decodedText); // Extract ID from URL
+                document.getElementById("certID").value = certID;
+                verifyCertificate(certID);
                 stopQRScanner();
+              },
+              (errorMessage) => {
+                console.warn("QR Scan Error:", errorMessage);
               }
             )
             .catch((err) => console.error("QR Scanner Error:", err));
+
           qrReader.style.display = "block";
           document.getElementById("scanBtn").innerText = "Stop Scanning";
           qrScannerActive = true;
         } else {
           stopQRScanner();
+        }
+      }
+
+      // Extract certificate ID from URL if needed
+      function extractCertificateID(qrData) {
+        try {
+          let url = new URL(qrData);
+          return url.searchParams.get("id") || qrData; // Extract `id` or return raw data
+        } catch (e) {
+          return qrData; // If it's not a URL, return as is
         }
       }
 
